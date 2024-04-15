@@ -1,5 +1,7 @@
 package com.example.shoplist.domain.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 

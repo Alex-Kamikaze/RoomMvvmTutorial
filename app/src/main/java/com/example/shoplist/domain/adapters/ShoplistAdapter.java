@@ -1,46 +1,70 @@
 package com.example.shoplist.domain.adapters;
 
+import android.app.appsearch.PackageIdentifier;
+import android.content.Context;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.shoplist.R;
 import com.example.shoplist.data.db.ShoplistItemEntity;
 import com.example.shoplist.databinding.ShoplistItemBinding;
 
 import java.util.ArrayList;
 
 public class ShoplistAdapter extends RecyclerView.Adapter<ShoplistAdapter.ViewHolder> {
-    private ShoplistItemBinding binding;
     private ArrayList<ShoplistItemEntity> shoplistItems;
     private final OnShopListItemClick onShopListItemClick;
+    private final Context context;
+    private final OnMenuItemSelected onMenuItemSelected;
 
     public interface OnShopListItemClick {
-        void onItemClicked(ShoplistItemEntity item, int position, boolean checked);
+        void onItemClicked(int position, boolean checked);
     }
 
-    public ShoplistAdapter(ArrayList<ShoplistItemEntity> shopListItems, OnShopListItemClick onItemClick) {
+    public interface OnMenuItemSelected {
+        void onShopListMenuItemSelected(int position, MenuItem item);
+    }
+
+
+
+    public ShoplistAdapter(Context context, ArrayList<ShoplistItemEntity> shopListItems, OnShopListItemClick onItemClick, OnMenuItemSelected onMenuItemSelected) {
+        this.context = context;
         this.shoplistItems = shopListItems;
         this.onShopListItemClick = onItemClick;
+        this.onMenuItemSelected = onMenuItemSelected;
     }
 
     @NonNull
     @Override
     public ShoplistAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        binding = ShoplistItemBinding.inflate(LayoutInflater.from(parent.getContext()));
-        return new ViewHolder(binding.getRoot());
+        ShoplistItemBinding binding = ShoplistItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ShoplistAdapter.ViewHolder holder, int position) {
-        holder.setItemName(shoplistItems.get(position).getName());
-        holder.setItemCompleted(shoplistItems.get(position).isCompleted());
-        binding.productName.setText(holder.getItemName());
-        binding.productChecked.setChecked(holder.isItemCompleted());
-        binding.productChecked.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            onShopListItemClick.onItemClicked(shoplistItems.get(position), position, isChecked);
+        holder.binding.productName.setText(shoplistItems.get(position).getName());
+        holder.binding.productChecked.setChecked(shoplistItems.get(position).isCompleted());
+        holder.binding.getRoot().setOnLongClickListener(view -> {
+            PopupMenu menu = new PopupMenu(context, view);
+            menu.inflate(R.menu.list_menu);
+            menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    onMenuItemSelected.onShopListMenuItemSelected(position,  menuItem);
+                    return true;
+                }
+            });
+            menu.show();
+            return true;
         });
     }
 
@@ -54,27 +78,23 @@ public class ShoplistAdapter extends RecyclerView.Adapter<ShoplistAdapter.ViewHo
         this.notifyDataSetChanged();
     }
 
+    public ShoplistItemEntity getElementByPosition(int position) {
+        return shoplistItems.get(position);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private String itemName;
-        private boolean itemCompleted;
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-        }
+        public ShoplistItemBinding binding;
+        public ViewHolder(@NonNull ShoplistItemBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
 
-        public String getItemName() {
-            return itemName;
-        }
-
-        public void setItemName(String itemName) {
-            this.itemName = itemName;
-        }
-
-        public boolean isItemCompleted() {
-            return itemCompleted;
-        }
-
-        public void setItemCompleted(boolean itemCompleted) {
-            this.itemCompleted = itemCompleted;
+            binding.productChecked.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    boolean isChecked = binding.productChecked.isChecked();
+                    onShopListItemClick.onItemClicked(position, isChecked);
+                }
+            });
         }
     }
 }
