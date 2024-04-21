@@ -72,7 +72,6 @@ public class ShoplistFragment extends Fragment {
         binding.addItemButton.setOnClickListener(v -> {
             new NewRecordDialog(null).show(getChildFragmentManager(), NewRecordDialog.TAG);
         });
-        registerForContextMenu(binding.shoplistView);
         return binding.getRoot();
     }
 

@@ -9,7 +9,6 @@ import com.example.shoplist.data.db.AppDatabase;
 public class ShoplistApplication extends Application {
     private static ShoplistApplication INSTANCE;
     private AppDatabase db;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -18,12 +17,11 @@ public class ShoplistApplication extends Application {
                 .allowMainThreadQueries()
                 .build();
     }
-
     public static ShoplistApplication getINSTANCE() {
         return INSTANCE;
     }
-
     public AppDatabase getDb() {
         return db;
     }
 }
+

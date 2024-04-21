@@ -22,27 +22,21 @@ public class ShoplistItemEntity {
     }
 
     public ShoplistItemEntity() {}
-
     public int getID() {
         return ID;
     }
-
     public void setID(int ID) {
         this.ID = ID;
     }
-
     public String getName() {
         return Name;
     }
-
     public void setName(String name) {
         Name = name;
     }
-
     public boolean isCompleted() {
         return Completed;
     }
-
     public void setCompleted(boolean completed) {
         Completed = completed;
     }
